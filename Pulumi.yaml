@@ -1,0 +1,3 @@
+name: update-management
+runtime: python
+description: A project for testing linux update management within Azure

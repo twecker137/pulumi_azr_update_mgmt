@@ -1,0 +1,3 @@
+config:
+  azure-native:location: WestEurope
+  pulumi:template: azure-python
