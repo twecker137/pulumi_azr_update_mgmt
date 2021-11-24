@@ -46,9 +46,6 @@ def pulumi_program():
     vm_cfgs = [
         {
             "name": stack_name + "01",
-        },
-        {
-            "name": stack_name + "02",
         }
     ]
 
@@ -58,12 +55,11 @@ def pulumi_program():
             .apply(lambda args: azure_native.operationalinsights.get_shared_keys(
                 resource_group_name=args[0],
                 workspace_name=args[1]
-            )) \
-            .apply(lambda key: shared_keys.primary_shared_key)
+            ))
 
-        vm = VMs.VMLinux(vm_cfg["name"], VMs.VMLinuxArgs(
+        vm = VMs.VMLinux(vm_cfg['name'], VMs.VMLinuxArgs(
             resource_group=rg_compute,
-            workspace_id=update_management.log_analytics.name.apply(lambda name: name),
+            workspace_id=update_management.log_analytics.customer_id.apply(lambda cid: cid),
             workspace_key=shared_keys.primary_shared_key,
             admin_user=admin_user,
             admin_ssh_pubkey=admin_ssh_pubkey,
@@ -124,4 +120,4 @@ if destroy:
 print("updating stack...")
 #up_res = stack.preview(on_output=print)
 up_res = stack.up(on_output=print)
-# print(f"update summary: \n{json.dumps(up_res.summary.resource_changes, indent=4)}")
+print(f"update summary: \n{json.dumps(up_res.summary.resource_changes, indent=4)}")
