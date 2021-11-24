@@ -20,7 +20,6 @@ class VMLinux(pulumi.ComponentResource):
                  name: str,
                  args: VMLinuxArgs,
                  opts: ResourceOptions = None):
-
         super().__init__("towe:modules:VMLinux", name, {}, opts)
 
         child_opts = ResourceOptions(parent=self)
@@ -37,17 +36,30 @@ class VMLinux(pulumi.ComponentResource):
             location=args.resource_group.location,
             network_security_group_name=f"nsg-{name}",
             resource_group_name=args.resource_group.name,
-            security_rules=[azure_native.network.SecurityRuleArgs(
-                access="Allow",
-                destination_address_prefix="*",
-                destination_port_range="22",
-                direction="Inbound",
-                name="ssh",
-                priority=100,
-                protocol="*",
-                source_address_prefix=args.source_address_prefix,
-                source_port_range="*",
-            )],
+            security_rules=[
+                azure_native.network.SecurityRuleArgs(
+                    access="Allow",
+                    destination_address_prefix="*",
+                    destination_port_range="22",
+                    direction="Inbound",
+                    name="ssh",
+                    priority=100,
+                    protocol="*",
+                    source_address_prefix=args.source_address_prefix,
+                    source_port_range="*",
+                ),
+                azure_native.network.SecurityRuleArgs(
+                    access="Allow",
+                    destination_address_prefix="*",
+                    destination_port_range="80",
+                    direction="Inbound",
+                    name="http",
+                    priority=101,
+                    protocol="*",
+                    source_address_prefix=args.source_address_prefix,
+                    source_port_range="*",
+                )
+            ],
             opts=ResourceOptions(parent=self)
         )
 
