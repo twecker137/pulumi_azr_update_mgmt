@@ -1,6 +1,14 @@
+from typing import Any, Mapping
+
 import pulumi
 import pulumi_azure_native as azure_native
 from pulumi import ResourceOptions
+
+
+# Turn `<id>` into `{ <id>: {} }`
+def id_to_dict(id_output) -> Mapping[str, Any]:
+    my_dict = {id_output: {}}
+    return my_dict
 
 
 class UpdateManagementArgs:
@@ -14,10 +22,16 @@ class UpdateManagement(pulumi.ComponentResource):
                  name: str,
                  args: UpdateManagementArgs,
                  opts: ResourceOptions = None):
-
         super().__init__("towe:modules:UpdateManagement", name, {}, opts)
 
         child_opts = ResourceOptions(parent=self)
+
+        self.automation_user_identity = azure_native.managedidentity.UserAssignedIdentity(
+            f"id-{name}",
+            location=args.resource_group.location,
+            resource_group_name=args.resource_group.name,
+            opts=ResourceOptions(parent=self)
+        )
 
         self.automation_account = azure_native.automation.AutomationAccount(
             name,
@@ -26,6 +40,10 @@ class UpdateManagement(pulumi.ComponentResource):
             resource_group_name=args.resource_group.name,
             sku=azure_native.automation.SkuArgs(
                 name="Basic",
+            ),
+            identity=azure_native.automation.IdentityArgs(
+                type="UserAssigned",
+                user_assigned_identities=self.automation_user_identity.id.apply(id_to_dict)
             ),
             opts=ResourceOptions(parent=self)
         )
