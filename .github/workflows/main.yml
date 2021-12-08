@@ -16,9 +16,10 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  buildAndDeploy:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    environment: pulumi-dev
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -37,3 +38,15 @@ jobs:
 
       - name: Install pip dependencies
         run: pip install -r requirements.txt
+      
+      - name: Run pulumi preview
+        run: python __main__.py preview
+        env:
+          AZURE_LOCATION: "WestEurope"
+          ADMIN_USER: ${{ secrets.ADMIN_USER }}
+          ADMIN_SSH_PUBKEY: ${{ secrets.ADMIN_SSH_PUBKEY }}
+          ACCESS_SOURCE_ADDRESS_PREFIX: ${{ secrets.ACCESS_SOURCE_ADDRESS_PREFIX }}
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
