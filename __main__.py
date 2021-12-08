@@ -79,10 +79,14 @@ def pulumi_program():
 
 # To destroy our program, we can run python main.py destroy
 destroy = False
+# To preview our program, we can run python main.py preview
+preview = True
 args = sys.argv[1:]
 if len(args) > 0:
     if args[0] == "destroy":
         destroy = True
+    elif args[0] == "preview":
+        preview = True
 
 project_name = "update-management"
 # We use a simple stack name here, but recommend using auto.fully_qualified_stack_name for maximum specificity.
@@ -118,7 +122,12 @@ if destroy:
     print("stack destroy complete")
     sys.exit()
 
+if preview:
+    print("stack preview")
+    up_res = stack.preview(on_output=print)
+    print(f"preview summary: \n{json.dumps(up_res.change_summary, indent=4)}")
+    sys.exit()
+
 print("updating stack...")
-#up_res = stack.preview(on_output=print)
 up_res = stack.up(on_output=print)
 print(f"update summary: \n{json.dumps(up_res.summary.resource_changes, indent=4)}")
