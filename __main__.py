@@ -80,7 +80,7 @@ def pulumi_program():
 # To destroy our program, we can run python main.py destroy
 destroy = False
 # To preview our program, we can run python main.py preview
-preview = True
+preview = False
 args = sys.argv[1:]
 if len(args) > 0:
     if args[0] == "destroy":
