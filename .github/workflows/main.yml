@@ -42,6 +42,7 @@ jobs:
       - name: Run pulumi preview
         run: python __main__.py preview
         env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           AZURE_LOCATION: "WestEurope"
           ADMIN_USER: ${{ secrets.ADMIN_USER }}
           ADMIN_SSH_PUBKEY: ${{ secrets.ADMIN_SSH_PUBKEY }}
