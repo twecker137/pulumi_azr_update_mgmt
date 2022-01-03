@@ -40,7 +40,7 @@ jobs:
         run: pip install -r requirements.txt
       
       - name: Run pulumi preview
-        run: python __main__.py preview
+        run: python __main__.py destroy
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           AZURE_LOCATION: "WestEurope"
