@@ -15,8 +15,44 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  buildAndDeploy:
+  # Pulumi Preview job for showing outstanding changes
+  pulumiPreview:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    environment: pulumi-dev-preview
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+          
+      - name: Setup Python
+        uses: actions/setup-python@v2.3.1
+        with:
+          # Version range or exact version of a Python version to use, using SemVer's version range syntax.
+          python-version: 3
+          # Used to specify a package manager for caching in the default directory. Supported values: pip, pipenv.
+          cache: pip
+          # The target architecture (x86, x64) of the Python interpreter.
+          architecture: x64
+
+      - name: Install pip dependencies
+        run: pip install -r requirements.txt
+      
+      - name: Run pulumi preview
+        run: python __main__.py preview
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          AZURE_LOCATION: "WestEurope"
+          ADMIN_USER: ${{ secrets.ADMIN_USER }}
+          ADMIN_SSH_PUBKEY: ${{ secrets.ADMIN_SSH_PUBKEY }}
+          ACCESS_SOURCE_ADDRESS_PREFIX: ${{ secrets.ACCESS_SOURCE_ADDRESS_PREFIX }}
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  # Pulumi Apply job for applying outstanding changes
+  pulumiApply:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     environment: pulumi-dev
@@ -39,8 +75,8 @@ jobs:
       - name: Install pip dependencies
         run: pip install -r requirements.txt
       
-      - name: Run pulumi preview
-        run: python __main__.py destroy
+      - name: Run pulumi apply
+        run: python __main__.py
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           AZURE_LOCATION: "WestEurope"
