@@ -4,12 +4,7 @@ import pulumi
 import pulumi_azure_native as azure_native
 from pulumi import ResourceOptions
 
-
-# Turn `<id>` into `{ <id>: {} }`
-def id_to_dict(id_output) -> Mapping[str, Any]:
-    my_dict = {id_output: {}}
-    return my_dict
-
+import Tools
 
 class UpdateManagementArgs:
     def __init__(self, resource_group, retention_in_days):
@@ -43,7 +38,7 @@ class UpdateManagement(pulumi.ComponentResource):
             ),
             identity=azure_native.automation.IdentityArgs(
                 type="UserAssigned",
-                user_assigned_identities=self.automation_user_identity.id.apply(id_to_dict)
+                user_assigned_identities=self.automation_user_identity.id.apply(Tools.id_to_dict)
             ),
             opts=ResourceOptions(parent=self)
         )
@@ -69,7 +64,7 @@ class UpdateManagement(pulumi.ComponentResource):
             opts=ResourceOptions(parent=self.log_analytics)
         )
 
-        self.automation_update_solution = azure_native.operationsmanagement.Solution(
+        self.analytics_update_solution = azure_native.operationsmanagement.Solution(
             name,
             solution_name=self.log_analytics.name.apply(lambda name: f"Updates({name})"),  # name is important
             location=args.resource_group.location,
@@ -77,6 +72,23 @@ class UpdateManagement(pulumi.ComponentResource):
             plan=azure_native.operationsmanagement.SolutionPlanArgs(
                 name="Updates",
                 product="OMSGallery/Updates",
+                publisher="Microsoft",
+                promotion_code=""
+            ),
+            properties=azure_native.operationsmanagement.SolutionPropertiesArgs(
+                workspace_resource_id=self.log_analytics.id,
+            ),
+            opts=ResourceOptions(parent=self.log_analytics)
+        )
+
+        self.analytics_automation_solution = azure_native.operationsmanagement.Solution(
+            f"{name}-azureautomation",
+            solution_name=self.log_analytics.name.apply(lambda name: f"AzureAutomation({name})"),  # name is important
+            location=args.resource_group.location,
+            resource_group_name=args.resource_group.name,
+            plan=azure_native.operationsmanagement.SolutionPlanArgs(
+                name="AzureAutomation",
+                product="OMSGallery/AzureAutomation",
                 publisher="Microsoft",
                 promotion_code=""
             ),
